@@ -1,0 +1,35 @@
+﻿@charset "UTF-8";
+
+main {
+    display: grid;
+    grid-template-areas:
+        "header header header"
+        "nav content aside"
+        "footer footer footer";
+    grid-template-columns: 1fr 5fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    height: 100vh;
+}
+
+header {
+    grid-area: header;
+}
+
+aside {
+    grid-area: aside;
+}
+
+article {
+    grid-area: content;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: var(--background-color-primary);
+}
+
+nav {
+    grid-area: nav;
+}
+
+footer {
+    grid-area: footer;
+}

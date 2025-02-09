@@ -1,0 +1,32 @@
+﻿@using WebBrowserComponent
+
+@inject IJSRuntime jsRuntime
+
+<dialog @ref="elemDialog">
+    @ChildContent
+</dialog>
+
+@code {
+    private ElementReference elemDialog;
+
+    [Parameter]
+    public required RenderFragment ChildContent { get; init; }
+
+    [Parameter]
+    public EventCallback OnOpenedAsync { get; set; }
+
+    [Parameter]
+    public EventCallback OnClosedAsync { get; set; }
+
+    public async Task OpenAsync(CancellationToken tknCancellation)
+    {
+        await jsRuntime.ShowDialogAsync(elemDialog, tknCancellation);
+        _ = OnOpenedAsync.InvokeAsync(tknCancellation);
+    }
+
+    public async Task CloseAsync(CancellationToken tknCancellation)
+    {
+        await jsRuntime.CloseDialogAsync(elemDialog, tknCancellation);
+        _ = OnClosedAsync.InvokeAsync(tknCancellation);
+    }
+}

@@ -1,0 +1,31 @@
+﻿@charset "UTF-8";
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul ul {
+    display: none;
+    position: relative;
+}
+
+nav li {
+    position: relative;
+}
+
+nav li:hover > ul,
+nav li:focus-within > ul {
+    display: block;
+}
+
+nav a {
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+}
+
+nav a:hover,
+nav a:focus {
+    background-color: var(--hover-color);
+}

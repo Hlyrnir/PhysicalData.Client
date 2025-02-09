@@ -1,0 +1,122 @@
+{
+  "DEFAULT_NotAuthenticated": {
+    "en-GB": "You are not authenticated. Please log in.",
+    "de-DE": "Sie sind nicht authentifiziert. Bitte melden Sie sich an."
+  },
+  "DEFAULT_Loading": {
+    "en-GB": "Please wait...",
+    "de-DE": "Bitte warten Sie..."
+  },
+  "DEFAULT_DIALOG_OK": {
+    "en-GB": "confirm",
+    "de-DE": "bestätigen"
+  },
+  "DEFAULT_DIALOG_CANCEL": {
+    "en-GB": "cancel",
+    "de-DE": "abbrechen"
+  },
+  "DEFAULT_PAGE_ACTION": {
+    "en-GB": "Actions",
+    "de-DE": "Aktionen"
+  },
+  "DEFAULT_PAGE_ADD": {
+    "en-GB": "add",
+    "de-DE": "hinzufügen"
+  },
+  "DEFAULT_PAGE_DELETE": {
+    "en-GB": "delete",
+    "de-DE": "löschen"
+  },
+  "DEFAULT_PAGE_EDIT": {
+    "en-GB": "edit",
+    "de-DE": "bearbeiten"
+  },
+  "DEFAULT_PAGE_FILTER": {
+    "en-GB": "filter",
+    "de-DE": "filtern"
+  },
+  "DEFAULT_PAGE_RESET": {
+    "en-GB": "reset",
+    "de-DE": "zurücksetzen"
+  },
+  "INDEX_Introduction": {
+    "en-GB": "Welcome to this site...",
+    "de-DE": "Willkommen auf dieser Seite..."
+  },
+  "PHYSICAL_DIMENSION_PAGE_TITLE": {
+    "en-GB": "Filtered list of physical dimensions",
+    "de-DE": "gefilterte Liste von physikalischen Grössen"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_ID": {
+    "en-GB": "Id",
+    "de-DE": "Id"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_CULTURE_NAME": {
+    "en-GB": "Culture name",
+    "de-DE": "Sprachgebiet"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_NAME": {
+    "en-GB": "Name",
+    "de-DE": "Name"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_SYMBOL": {
+    "en-GB": "Symbol",
+    "de-DE": "Symbol"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_UNIT": {
+    "en-GB": "Unit",
+    "de-DE": "Einheit"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_CONVERSION_FACTOR_TO_SI": {
+    "en-GB": "Conversion factor to SI",
+    "de-DE": "Umwandlungsfaktor zur SI-Einheit"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_AMPERE": {
+    "en-GB": "Exponent of unit 'Ampere'",
+    "de-DE": "Exponent der Einheit 'Ampere'"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_CANDELA": {
+    "en-GB": "Exponent of unit 'Candela'",
+    "de-DE": "Exponent der Einheit 'Candela'"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KELVIN": {
+    "en-GB": "Exponent of unit 'Kelvin'",
+    "de-DE": "Exponent der Einheit 'Kelvin'"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KILOGRAM": {
+    "en-GB": "Exponent of unit 'Kilogram'",
+    "de-DE": "Exponent der Einheit 'Kilogramm'"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_METRE": {
+    "en-GB": "Exponent of unit 'Metre'",
+    "de-DE": "Exponent der Einheit 'Meter'"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_MOLE": {
+    "en-GB": "Exponent of unit 'Mole'",
+    "de-DE": "Exponent der Einheit 'Mol'"
+  },
+  "PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_SECOND": {
+    "en-GB": "Exponent of unit 'Second'",
+    "de-DE": "Exponent der Einheit 'Second'"
+  },
+  "TIME_PERIOD_PAGE_TITLE": {
+    "en-GB": "Filtered list of time periods",
+    "de-DE": "gefilterte Liste von Perioden"
+  },
+  "TIME_PERIOD_PAGE_DETAIL_ID": {
+    "en-GB": "Id",
+    "de-DE": "Id"
+  },
+  "TIME_PERIOD_PAGE_DETAIL_MAGNITUDE": {
+    "en-GB": "Magnitude",
+    "de-DE": "Betrag"
+  },
+  "TIME_PERIOD_PAGE_DETAIL_OFFSET": {
+    "en-GB": "Offset",
+    "de-DE": "Versatz"
+  },
+  "TIME_PERIOD_PAGE_DETAIL_PHYSICAL_DIMENSION_ID": {
+    "en-GB": "Id of physical dimension",
+    "de-DE": "Id der physikalischen Grösse"
+  }
+}

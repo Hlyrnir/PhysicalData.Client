@@ -1,0 +1,20 @@
+﻿@using LocalizationComponent
+@using PassportCheckpoint.Interface
+@using PassportCheckpoint
+
+<div class="flex-container">
+    <ThemeToggle />
+    <CultureSetting />
+    <PassportRestrictedView RequiredVisa="@ppRequiredVisa">
+        <Authorized>
+            <LogOut />
+        </Authorized>
+        <NotAuthorized>
+            <LogIn />
+        </NotAuthorized>
+    </PassportRestrictedView>
+</div>
+
+@code {
+    private IEnumerable<IPassportVisa> ppRequiredVisa = Enumerable.Empty<IPassportVisa>();
+}

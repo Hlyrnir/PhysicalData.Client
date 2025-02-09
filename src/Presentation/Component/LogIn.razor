@@ -1,0 +1,50 @@
+﻿@using MessageQueueComponent.Interface
+@using PassportCheckpoint.Interface
+
+@implements IDisposable
+
+@inject IPassportCredential ppCredential
+
+@inject IPassportStateProvider prvPassportState
+@inject IMessageQueueProvider prvQueue
+@inject NavigationManager nmManager
+
+<form>
+	<label for="credential" hidden>Credential</label>
+	<input type="text" id="credential" required placeholder="Credential" @bind-value="ppCredential.Credential" @bind-value:event="onchange" />
+	<label for="signature" hidden>Signature</label>
+	<input type="password" id="signature" required placeholder="Signature" @bind-value="ppCredential.Signature" @bind-value:event="onchange" />
+	<button type="submit" id="submit" @onclick="()=>ExecuteLogIn()" disabled=@bIsSubmitting>Log in</button>
+</form>
+
+@code {
+	private CancellationTokenSource tknSource = new CancellationTokenSource();
+
+	private bool bIsSubmitting = false;
+
+	public async Task ExecuteLogIn()
+	{
+		if (bIsSubmitting)
+			return;
+
+		bIsSubmitting = true;
+
+		bool bIsLoggedIn = await prvPassportState.LogInAsync(ppCredential, tknSource.Token);
+
+		if (bIsLoggedIn == false)
+		{
+			prvQueue.AddWarningMessageToQueue("Log in", "Log in attempt has failed.");
+
+			ppCredential.Credential = string.Empty;
+			ppCredential.Signature = string.Empty;
+		}
+
+		bIsSubmitting = false;
+	}
+
+	void IDisposable.Dispose()
+	{
+		tknSource.Cancel();
+		tknSource.Dispose();
+	}
+}

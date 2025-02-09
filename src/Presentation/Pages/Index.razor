@@ -1,0 +1,94 @@
+﻿@using LineChartComponent
+@using LocalizationComponent
+@using MessageQueueComponent.Interface
+@using Microsoft.Extensions.Localization
+@using PassportCheckpoint.Interface
+@using Presentation.Chart
+@using WebBrowserComponent
+
+@attribute [Route(PageRoute.Index)]
+
+@inject IMessageQueueProvider prvQueue
+
+@inject IJSRuntime jsRuntime
+
+@if (dictLocalizer is null)
+{
+    <p>Loading localization...</p>
+}
+else
+{
+    <PageTitle>@dictLocalizer["INDEX_Introduction"]</PageTitle>
+
+    <h1>@dictLocalizer["INDEX_Introduction"]</h1>
+}
+
+<DialogTemplate @ref="tmplDialog">
+    <p>This is the content...</p>
+    <button @onclick="OnCloseDialogClick">Close</button>
+</DialogTemplate>
+
+<button @onclick="OnAlertClick">Let's alert...</button>
+<button @onclick="OnOpenDialogClick">Let's dialog...</button>
+<button @onclick="OnConfirmClick">Let's confirm...</button>
+<button @onclick="OnPromptClick">Let's prompt...</button>
+
+<section id="charts">
+    <div class="chart-container" style="position: relative; width:40vw">
+        <LineChart Id="lcExampleChart" Data="@(ExampleChartConfiguration.Data)" Option="@(ExampleChartConfiguration.Option)" />
+    </div>
+
+    <div class="chart-container" style="position: relative; width:40vw">
+        <LineChart Id="lcLineChart" Data="@(LineChartConfiguration.Data)" Option="@(LineChartConfiguration.Option)" />
+    </div>
+</section>
+
+@code
+{
+    [CascadingParameter(Name = LocalizationComponent.CascadingParameterName.LocalizationState)]
+    private Task<LocalizationState>? tskLocalizationState { get; set; }
+
+    private IStringLocalizer? dictLocalizer;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (tskLocalizationState is null)
+            return;
+
+        LocalizationState lclState = await tskLocalizationState;
+        dictLocalizer = lclState.DictionaryLocalizer;
+    }
+
+    private async void OnAlertClick()
+    {
+        await jsRuntime.ShowAlertAsync("This is an alert...", CancellationToken.None);
+    }
+
+    public required DialogTemplate tmplDialog;
+
+    private async void OnOpenDialogClick()
+    {
+        await tmplDialog.OpenAsync(CancellationToken.None);
+    }
+
+    private async void OnCloseDialogClick()
+    {
+        await tmplDialog.CloseAsync(CancellationToken.None);
+    }
+
+    private async void OnConfirmClick()
+    {
+        bool bResult = await jsRuntime.ShowConfirmAsync("This is a message...", CancellationToken.None);
+
+        Console.WriteLine($"Is confirmed: {bResult}");
+    }
+
+    private async void OnPromptClick()
+    {
+        string sResult = await jsRuntime.ShowPromptAsync("This is a message...", "A default value...", CancellationToken.None);
+
+        Console.WriteLine($"Is prompted: {sResult}");
+    }
+}

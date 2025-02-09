@@ -1,0 +1,97 @@
+﻿@using Presentation.Interface
+@using WebBrowserComponent
+
+@implements IAsyncDisposable
+
+@inject IJSRuntime jsRuntime
+@inject IPreferenceStorageService srvPreference
+
+<fieldset id="theme_toggle">
+	<legend>Theme</legend>
+	<label for="theme_light">Light theme</label>
+	<input type="radio" id="theme_light" name="theme_toggle" checked="@(!bDarkTheme)" @onchange="()=>ChangeThemeAsync(bUseDarkTheme: false)" />
+	<label for="theme_dark">Dark theme</label>
+	<input type="radio" id="theme_dark" name="theme_toggle" checked="@(bDarkTheme)" @onchange="()=>ChangeThemeAsync(bUseDarkTheme: true)" />
+</fieldset>
+
+@code {
+	private CancellationTokenSource tknSource = new CancellationTokenSource();
+
+	private bool bDarkTheme = false;
+	private const string sLightTheme = "THEME_LIGHT";
+	private const string sDarkTheme = "THEME_DARK";
+
+	private const string sMediaQuery = "(prefers-color-scheme: dark)";
+
+	private MediaQueryListChangedListener? wbcMediaQueryListChangedListener;
+
+	[Parameter]
+	public EventCallback OnThemeChangedAsync { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		wbcMediaQueryListChangedListener = await jsRuntime.CreateMediaQueryListChangedListener(sMediaQuery, tknSource.Token);
+
+		if (wbcMediaQueryListChangedListener is not null)
+			wbcMediaQueryListChangedListener.MediaQueryListChanged += NotifyThemeChanged;
+
+		string? sClientThemeName = await srvPreference.ReadPreferredThemeNameAsync(tknSource.Token);
+
+		if (string.IsNullOrWhiteSpace(sClientThemeName) == true)
+		{
+			bool bIsDarkPrefered = await jsRuntime.CheckMediaQueryListMatch(sMediaQuery, tknSource.Token);
+
+			if (bIsDarkPrefered)
+				await ChangeThemeAsync(bIsDarkPrefered);
+
+			return;
+		}
+
+		bool bUseDarkTheme = false;
+
+		switch (sClientThemeName)
+		{
+			case sLightTheme:
+				bUseDarkTheme = false;
+				break;
+			case sDarkTheme:
+				bUseDarkTheme = true;
+				break;
+			default:
+				bUseDarkTheme = false;
+				break;
+		}
+
+		await ChangeThemeAsync(bUseDarkTheme);
+	}
+
+	private async void NotifyThemeChanged(object? oSender, MediaQueryListChangedArgs argsMediaQueryListChanged)
+	{
+		await ChangeThemeAsync(argsMediaQueryListChanged.IsMatch);
+
+		_ = OnThemeChangedAsync.InvokeAsync(tknSource.Token);
+	}
+
+	private async Task ChangeThemeAsync(bool bUseDarkTheme)
+	{
+		bDarkTheme = bUseDarkTheme;
+
+		if (bDarkTheme == true)
+			await srvPreference.WriteThemeNameAsync(sDarkTheme, tknSource.Token);
+		else
+			await srvPreference.WriteThemeNameAsync(sLightTheme, tknSource.Token);
+
+		StateHasChanged();
+	}
+
+	async ValueTask IAsyncDisposable.DisposeAsync()
+	{
+		tknSource.Cancel();
+		tknSource.Dispose();
+
+		if (wbcMediaQueryListChangedListener is not null)
+			await wbcMediaQueryListChangedListener.DisposeAsync();
+	}
+}

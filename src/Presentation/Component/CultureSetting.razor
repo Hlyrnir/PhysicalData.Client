@@ -1,0 +1,81 @@
+﻿@using LocalizationComponent
+@using LocalizationComponent.Interface
+@using Presentation.Interface
+
+@implements IDisposable
+
+@inject ILocalizationStateProvider prvLocalization
+@inject IPreferenceStorageService srvPreference
+
+<fieldset>
+    <legend>Language</legend>
+    <label for="culture_setting">Choose a language:</label>
+    <select id="culture_setting" aria-label="Language selection" @onchange="args=>ChangeCultureName(args)">
+        <option value="@(CultureName.en_GB)" 
+            selected="@(sClientCultureName == CultureName.en_GB)"
+            disabled="@(sClientCultureName == CultureName.en_GB)">en-GB</option>
+        <option value="@(CultureName.de_DE)"
+            selected="@(sClientCultureName == CultureName.de_DE)"
+            disabled="@(sClientCultureName == CultureName.de_DE)">de-DE</option>
+    </select>
+</fieldset>
+
+@code {
+    private CancellationTokenSource tknSource = new CancellationTokenSource();
+
+    private string sClientCultureName = CultureName.en_GB;
+
+    [CascadingParameter(Name = LocalizationComponent.CascadingParameterName.LocalizationState)]
+    private Task<LocalizationState>? tskLocalizationState { get; set; }
+
+    private async Task ChangeCultureName(ChangeEventArgs args)
+    {
+        switch (args.Value)
+        {
+            case CultureName.en_GB:
+                sClientCultureName = CultureName.en_GB;
+                break;
+            case CultureName.de_DE:
+                sClientCultureName = CultureName.de_DE;
+                break;
+            default:
+                sClientCultureName = CultureName.en_GB;
+                break;
+        }
+
+        await srvPreference.WriteCultureNameAsync(sClientCultureName, tknSource.Token);
+        await prvLocalization.ChangeCultureNameAsync(sClientCultureName, tknSource.Token);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        string? sCultureName = await srvPreference.ReadPreferredCultureNameAsync(tknSource.Token);
+
+        if (string.IsNullOrWhiteSpace(sCultureName) == false)
+            sClientCultureName = sCultureName;
+
+        switch (sCultureName)
+        {
+            case CultureName.en_GB:
+                await prvLocalization.ChangeCultureNameAsync(CultureName.en_GB, tknSource.Token);
+                sClientCultureName = CultureName.en_GB;
+                break;
+            case CultureName.de_DE:
+                await prvLocalization.ChangeCultureNameAsync(CultureName.de_DE, tknSource.Token);
+                sClientCultureName = CultureName.de_DE;
+                break;
+            default:
+                await prvLocalization.ChangeCultureNameAsync(CultureName.en_GB, tknSource.Token);
+                sClientCultureName = CultureName.en_GB;
+                break;
+        }
+    }
+
+    public void Dispose()
+    {
+        tknSource.Cancel();
+        tknSource.Dispose();
+    }
+}

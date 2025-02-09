@@ -1,0 +1,24 @@
+﻿@using MessageQueueComponent
+@using PassportCheckpoint
+@using PassportCheckpoint.Interface
+@using Presentation.Pages
+
+@inherits LayoutComponentBase
+
+<main>
+    <header>
+        <Header />
+    </header>
+    <nav>
+        <Navigation />
+    </nav>
+    <article>
+        @Body
+    </article>
+    <aside>
+        <MessageQueue />
+    </aside>
+    <footer>
+        <Footer />
+    </footer>
+</main>
