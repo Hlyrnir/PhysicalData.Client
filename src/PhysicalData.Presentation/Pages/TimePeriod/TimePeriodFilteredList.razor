@@ -1,0 +1,358 @@
+﻿@using LocalizationComponent
+@using MessageQueueComponent
+@using MessageQueueComponent.Interface
+@using Microsoft.Extensions.Localization
+@using PassportCheckpoint
+@using PassportCheckpoint.Interface
+@using Presentation.Filter
+@using Presentation.Interface
+@using Presentation.Model
+@using Presentation.Result
+@using System.Text.Json
+@using WebBrowserComponent
+
+@inject IJSRuntime jsRuntime
+
+@implements IDisposable
+
+@inject IPassportStateProvider prvPassportState
+@inject ITimePeriodService srvTimePeriod
+@inject IMessageQueueProvider prvQueue
+
+@inject NavigationManager nmManager
+
+@attribute [Route(PageRoute.TimePeriod.List)]
+
+@if (dictLocalizer is null)
+{
+    <p>Loading localization...</p>
+}
+else
+{
+    <PageTitle>@dictLocalizer["TIME_PERIOD_PAGE_TITLE"]</PageTitle>
+
+    <h3>@dictLocalizer["TIME_PERIOD_PAGE_TITLE"]</h3>
+    <hr />
+
+    <PassportRestrictedView RequiredVisa="@ppRequiredVisa" Context="read">
+        <NotAuthorized>
+            @dictLocalizer["DEFAULT_NotAuthenticated"]
+        </NotAuthorized>
+        <Authorized Context="list">
+            <TimePeriodFilterTemplate Page="idxPage.Page" PageSize="idxPage.PageSize" OnFilterChangedAsync="RefreshListWithFilter" />
+            <hr />
+            <PageIndex @ref="idxPage" OnPageIndexChangedAsync="OnPageIndexChangedAsync" />
+            <hr />
+            <TableTemplate Item="enumTimePeriod">
+                <TableHeader>
+                    <th>@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_ID"]</th>
+                    <th>@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_MAGNITUDE"]</th>
+                    <th>@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_OFFSET"]</th>
+                    <th>@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_PHYSICAL_DIMENSION_ID"]</th>
+
+                    <PassportRestrictedView RequiredVisa="@ppRequiredVisaToModify" Context="modify">
+                        <Authorized>
+                            <th>@dictLocalizer["DEFAULT_PAGE_ACTION"]</th>
+                        </Authorized>
+                    </PassportRestrictedView>
+                </TableHeader>
+                <TableRowTemplate Context="pdTimePeriod">
+                    <td>@pdTimePeriod.Id</td>
+                    <td>@(SerializeMagnitude(pdTimePeriod.Magnitude))</td>
+                    <td>@pdTimePeriod.Offset</td>
+                    <td>@pdTimePeriod.PhysicalDimensionId</td>
+                    <td>
+                        <PassportRestrictedView RequiredVisa="@ppRequiredVisaToModify" Context="modify">
+                            <Authorized>
+                                <button @onclick="argsClick=>ShowEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_PAGE_EDIT"]</button>
+
+                                <DialogTemplate @ref="tmplEditDialog">
+                                    <hr />
+                                    <TimePeriodDetail Id="@pdTimePeriod.Id.ToString()" TimePeriod="@pdTimePeriod" />
+                                    <hr />
+                                    <button type="button" @onclick="argsClick=>UpdateTimePeriod(pdTimePeriod, argsClick)">@dictLocalizer["DEFAULT_DIALOG_OK"]</button>
+                                    <button type="button" @onclick="argsClick=>CloseEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_DIALOG_CANCEL"]</button>
+                                </DialogTemplate>
+                            </Authorized>
+                        </PassportRestrictedView>
+                        <PassportRestrictedView RequiredVisa="@ppRequiredVisaToRemove" Context="remove">
+                            <Authorized>
+                                <button name="btnDelete" type="button" @onclick="argsClick=>DeleteTimePeriod(pdTimePeriod.Id, argsClick)">@dictLocalizer["DEFAULT_PAGE_DELETE"]</button>
+                            </Authorized>
+                        </PassportRestrictedView>
+                    </td>
+                </TableRowTemplate>
+                <TableFooter>
+                </TableFooter>
+            </TableTemplate>
+
+            <PassportRestrictedView RequiredVisa="@ppRequiredVisaToAdd" Context="add">
+                <Authorized Context="add">
+                    <button @onclick="argsClick=>ShowAddDialogAsync(argsClick)">@dictLocalizer["DEFAULT_PAGE_ADD"]</button>
+
+                    <DialogTemplate @ref="tmplAddDialog">
+                        <hr />
+                        <TimePeriodDetail Id="@pdTimePeriodToCreate.Id.ToString()" TimePeriod="@pdTimePeriodToCreate" />
+                        <hr />
+                        <button type="button" @onclick="argsClick=>CreateTimePeriod(pdTimePeriodToCreate, argsClick)">@dictLocalizer["DEFAULT_DIALOG_OK"]</button>
+                        <button type="button" @onclick="argsClick=>CloseAddDialogAsync(argsClick)">@dictLocalizer["DEFAULT_DIALOG_CANCEL"]</button>
+                    </DialogTemplate>
+                </Authorized>
+            </PassportRestrictedView>
+        </Authorized>
+    </PassportRestrictedView>
+}
+
+@code {
+    private CancellationTokenSource tknSource = new CancellationTokenSource();
+
+    [CascadingParameter(Name = LocalizationComponent.CascadingParameterName.LocalizationState)]
+    private Task<LocalizationState>? tskLocalizationState { get; set; }
+
+    private IStringLocalizer? dictLocalizer;
+
+    [CascadingParameter(Name = PassportCheckpoint.CascadingParameterName.PassportState)]
+    private Task<PassportState>? tskPassportState { get; set; }
+
+    private readonly IEnumerable<IPassportVisa> ppRequiredVisa = Enumerable.Empty<IPassportVisa>();
+    private readonly IEnumerable<IPassportVisa> ppRequiredVisaToAdd = new List<IPassportVisa> { new PassportVisa() { Name = "TIME_PERIOD", Level = 1 } };
+    private readonly IEnumerable<IPassportVisa> ppRequiredVisaToModify = new List<IPassportVisa> { new PassportVisa() { Name = "TIME_PERIOD", Level = 2 } };
+    private readonly IEnumerable<IPassportVisa> ppRequiredVisaToRemove = new List<IPassportVisa> { new PassportVisa() { Name = "TIME_PERIOD", Level = 3 } };
+
+    private PageIndex idxPage = new PageIndex();
+
+    private async Task OnPageIndexChangedAsync()
+    {
+        await RefreshList();
+    }
+
+    IEnumerable<TimePeriod> enumTimePeriod = Enumerable.Empty<TimePeriod>();
+
+    private TimePeriod pdTimePeriodToCreate = new TimePeriod();
+
+    private bool bIsBusy = false;
+
+    public required DialogTemplate tmplAddDialog;
+    public required DialogTemplate tmplEditDialog;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (tskLocalizationState is null)
+            return;
+
+        LocalizationState lclState = await tskLocalizationState;
+        dictLocalizer = lclState.DictionaryLocalizer;
+
+        if (tskPassportState is null)
+            return;
+
+        PassportState ppState = await tskPassportState;
+
+        if (ppState.IsAuthenticated)
+            await RefreshList();
+    }
+
+    private async Task ShowEditDialogAsync(MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await tmplEditDialog.OpenAsync(tknSource.Token);
+    }
+
+    private async Task CloseEditDialogAsync(MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await tmplEditDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task ShowAddDialogAsync(MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        pdTimePeriodToCreate = new TimePeriod();
+
+        await tmplAddDialog.OpenAsync(tknSource.Token);
+    }
+
+    private async Task CloseAddDialogAsync(MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await tmplAddDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task CreateTimePeriod(TimePeriod pdTimePeriod, MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await TryCreate(pdTimePeriod, tknSource.Token);
+
+        await tmplAddDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task DeleteTimePeriod(Guid guTimePeriodId, MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await TryDelete(guTimePeriodId, tknSource.Token);
+
+        await tmplEditDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task UpdateTimePeriod(TimePeriod pdTimePeriod, MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await TryUpdate(pdTimePeriod, tknSource.Token);
+
+        await tmplEditDialog.CloseAsync(tknSource.Token);
+    }
+
+    private string SerializeMagnitude(double[] dMagnitude)
+    {
+        return JsonSerializer.Serialize(dMagnitude);
+    }
+
+    private async Task RefreshList()
+    {
+        TimePeriodFilter fltrTimePeriod = new TimePeriodFilter()
+            {
+                Page = idxPage.Page,
+                PageSize = idxPage.PageSize
+            };
+
+        await RefreshListWithFilter(fltrTimePeriod);
+    }
+
+    private async Task RefreshListWithFilter(TimePeriodFilter? fltrTimePeriod)
+    {
+        if (fltrTimePeriod is null)
+            return;
+
+        if (bIsBusy)
+            return;
+
+        bIsBusy = true;
+
+        ApiResult<PagedResult<TimePeriod>> rsltTimePeriod = await srvTimePeriod.FindTimePeriodByFilter(fltrTimePeriod, tknSource.Token);
+
+        bool bResult = rsltTimePeriod.Match(
+            apiError =>
+            {
+                prvQueue.AddWarningMessageToQueue("List could not be refreshed.", apiError.Description);
+
+                return false;
+            },
+            rsltPagedResult =>
+            {
+                this.enumTimePeriod = rsltPagedResult.Content;
+                return true;
+            }
+        );
+
+        bIsBusy = false;
+    }
+
+    private async Task TryCreate(TimePeriod pdTimePeriod, CancellationToken tknCancellation)
+    {
+        if (bIsBusy)
+            return;
+
+        bIsBusy = true;
+
+        ApiResult<bool> rsltUpdate = await srvTimePeriod.TryCreateTimePeriod(pdTimePeriod, tknCancellation);
+
+        bool bResult = rsltUpdate.Match(
+            apiError =>
+            {
+                return false;
+            },
+            bResult =>
+            {
+                return bResult;
+            }
+        );
+
+        bIsBusy = false;
+
+        if (bResult == false)
+            return;
+
+        await RefreshList();
+        await jsRuntime.ShowAlertAsync("Time period has been created.", tknCancellation);
+    }
+
+    private async Task TryUpdate(TimePeriod pdTimePeriod, CancellationToken tknCancellation)
+    {
+        if (bIsBusy)
+            return;
+
+        bIsBusy = true;
+
+        ApiResult<bool> rsltUpdate = await srvTimePeriod.TryUpdateTimePeriod(pdTimePeriod, tknCancellation);
+
+        bool bResult = rsltUpdate.Match(
+            apiError =>
+            {
+                return false;
+            },
+            bResult =>
+            {
+                return bResult;
+            }
+        );
+
+        bIsBusy = false;
+
+        if (bResult == false)
+            return;
+
+        await RefreshList();
+        await jsRuntime.ShowAlertAsync("Time period has been updated.", tknCancellation);
+    }
+
+    private async Task TryDelete(Guid guTimePeriodId, CancellationToken tknCancellation)
+    {
+        bool bIsConfirmed = await jsRuntime.ShowConfirmAsync($"Are you sure you want to delete '{guTimePeriodId}'?");
+
+        if (bIsConfirmed == false)
+            return;
+
+        ApiResult<bool> rsltTimePeriod = await srvTimePeriod.TryDeleteTimePeriod(guTimePeriodId, tknSource.Token);
+
+        bool bResult = rsltTimePeriod.Match(
+            apiError =>
+            {
+                prvQueue.AddWarningMessageToQueue("Delete item has failed.", apiError.Description);
+
+                return false;
+            },
+            bResult =>
+            {
+                return bResult;
+            }
+        );
+
+        if (bResult == false)
+            return;
+
+        await RefreshList();
+        await jsRuntime.ShowAlertAsync("Time period has been deleted.", tknCancellation);
+    }
+
+    public void Dispose()
+    {
+        tknSource.Cancel();
+        tknSource.Dispose();
+    }
+}

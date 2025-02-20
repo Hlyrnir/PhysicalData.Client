@@ -1,0 +1,206 @@
+﻿@using LocalizationComponent
+@using Microsoft.Extensions.Localization
+@using PhysicalData.Presentation.Filter
+
+@if (dictLocalizer is null)
+{
+    <p>Loading localization...</p>
+}
+else if(fltrPhysicalDimension is not null)
+{
+    <article>
+        <form>
+            <label for="tbId">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_ID"]</label>
+            <input type="text" id="tbId" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_ID"]"
+            @bind:get="fltrPhysicalDimension.Id.ToString()" 
+            @bind:set="(sValue) => fltrPhysicalDimension.Id = ParseGuid(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbCultureName">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_CULTURE_NAME"]</label>
+            <input type="text" id="tbCultureName" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_CULTURE_NAME"]"
+            @bind:get="fltrPhysicalDimension.CultureName" 
+            @bind:set="(sValue) => fltrPhysicalDimension.CultureName = ParseString(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbName">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_NAME"]</label>
+            <input type="text" id="tbName" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_NAME"]"
+            @bind:get="fltrPhysicalDimension.Name" 
+            @bind:set="(sValue) => fltrPhysicalDimension.Name = ParseString(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbSymbol">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_SYMBOL"]</label>
+            <input type="text" id="tbSymbol" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_SYMBOL"]"
+            @bind:get="fltrPhysicalDimension.Symbol" 
+            @bind:set="(sValue) => fltrPhysicalDimension.Symbol = ParseString(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbUnit">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_UNIT"]</label>
+            <input type="text" id="tbUnit" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_UNIT"]"
+            @bind:get="fltrPhysicalDimension.Unit" 
+            @bind:set="(sValue) => fltrPhysicalDimension.Unit = ParseString(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbConversionFactorToSI">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_CONVERSION_FACTOR_TO_SI"]</label>
+            <input type="number" id="tbConversionFactorToSI" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_CONVERSION_FACTOR_TO_SI"]"
+            @bind:get="fltrPhysicalDimension.ConversionFactorToSI.ToString()" 
+            @bind:set="(sValue) => fltrPhysicalDimension.ConversionFactorToSI = ParseDouble(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbExponentOfAmpere">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_AMPERE"]</label>
+            <input type="number" id="tbExponentOfAmpere" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_AMPERE"]"
+            @bind:get="fltrPhysicalDimension.ExponentOfAmpere.ToString()" 
+            @bind:set="(sValue) => fltrPhysicalDimension.ExponentOfAmpere = ParseFloat(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbExponentOfCandela">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_CANDELA"]</label>
+            <input type="number" id="tbExponentOfCandela" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_CANDELA"]"
+            @bind:get="fltrPhysicalDimension.ExponentOfCandela.ToString()" 
+            @bind:set="(sValue) => fltrPhysicalDimension.ExponentOfCandela = ParseFloat(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbExponentOfKelvin">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KELVIN"]</label>
+            <input type="number" id="tbExponentOfKelvin" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KELVIN"]"
+            @bind:get="fltrPhysicalDimension.ExponentOfKelvin.ToString()" 
+            @bind:set="(sValue) => fltrPhysicalDimension.ExponentOfKelvin = ParseFloat(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbExponentOfKilogram">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KILOGRAM"]</label>
+            <input type="number" id="tbExponentOfKilogram" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KILOGRAM"]"
+            @bind:get="fltrPhysicalDimension.ExponentOfKilogram.ToString()" 
+            @bind:set="(sValue) => fltrPhysicalDimension.ExponentOfKilogram = ParseFloat(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbExponentOfMetre">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_METRE"]</label>
+            <input type="number" id="tbExponentOfMetre" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_METRE"]"
+            @bind:get="fltrPhysicalDimension.ExponentOfMetre.ToString()" 
+            @bind:set="(sValue) => fltrPhysicalDimension.ExponentOfMetre = ParseFloat(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbExponentOfMole">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_MOLE"]</label>
+            <input type="number" id="tbExponentOfMole" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_MOLE"]"
+            @bind:get="fltrPhysicalDimension.ExponentOfMole.ToString()" 
+            @bind:set="(sValue) => fltrPhysicalDimension.ExponentOfMole = ParseFloat(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbExponentOfSecond">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_SECOND"]</label>
+            <input type="number" id="tbExponentOfSecond" placeholder="@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_SECOND"]"
+            @bind:get="fltrPhysicalDimension.ExponentOfSecond.ToString()" 
+            @bind:set="(sValue) => fltrPhysicalDimension.ExponentOfSecond = ParseFloat(sValue)"
+            @bind:event="oninput"
+            @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+            <hr />
+            <div>
+                <button type="button" @onclick="NotifyFilterChanged">@dictLocalizer["DEFAULT_PAGE_FILTER"]</button>
+                <button type="button" @onclick="Reset">@dictLocalizer["DEFAULT_PAGE_RESET"]</button>
+            </div>
+        </form>
+    </article>
+}
+
+@code {
+    [CascadingParameter(Name = LocalizationComponent.CascadingParameterName.LocalizationState)]
+    private Task<LocalizationState>? tskLocalizationState { get; set; }
+
+    private IStringLocalizer? dictLocalizer;
+
+    private PhysicalDimensionFilter? fltrPhysicalDimension;
+
+    [Parameter]
+    public required int Page { get; init; }
+
+    [Parameter]
+    public required int PageSize { get; init; }
+
+    [Parameter]
+    public EventCallback<PhysicalDimensionFilter?> OnFilterChangedAsync { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        fltrPhysicalDimension = new PhysicalDimensionFilter()
+            {
+                Page = this.Page,
+                PageSize = this.PageSize
+            };
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (tskLocalizationState is null)
+            return;
+
+        LocalizationState lclState = await tskLocalizationState;
+        dictLocalizer = lclState.DictionaryLocalizer;
+    }
+
+    private Guid? ParseGuid(string? sValue)
+    {
+        if (Guid.TryParse(sValue, out Guid guValue) == true)
+            return guValue;
+
+        return null;
+    }
+
+    private double? ParseDouble(string? sValue)
+    {
+        if (double.TryParse(sValue, out double dValue) == true)
+            return dValue;
+
+        return null;
+    }
+
+    private float? ParseFloat(string? sValue)
+    {
+        if (float.TryParse(sValue, out float fValue) == true)
+            return fValue;
+
+        return null;
+    }
+
+    private string? ParseString(string? sValue)
+    {
+        if (string.IsNullOrWhiteSpace(sValue) == false)
+            return sValue;
+
+        return null;
+    }
+
+    private void NotifyFilterChanged()
+    {
+        _ = OnFilterChangedAsync.InvokeAsync(fltrPhysicalDimension);
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key != "Enter")
+            return;
+
+        NotifyFilterChanged();
+    }
+
+    private void Reset()
+    {
+        fltrPhysicalDimension = new PhysicalDimensionFilter()
+            {
+                Page = this.Page,
+                PageSize = this.PageSize
+            };
+
+        NotifyFilterChanged();
+    }
+}

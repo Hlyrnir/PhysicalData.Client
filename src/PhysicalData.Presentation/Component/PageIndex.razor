@@ -1,0 +1,97 @@
+﻿<div class="flex-container">
+	<div>
+		<label for="pageSize" style="font-size: 3ch">&#8801;</label>
+		<select id="pageSize" @onchange="(e)=>OnPageSizeChanged(e)">
+			<option value="5">5</option>
+			<option value="10" selected>10</option>
+			<option value="20">20</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+		</select>
+	</div>
+	<div>
+		<button type="button" @onclick="(e)=>OnPreviousClick(e)">&larr;</button>
+		@for(int i = 0; i < this.PageCount; i++)
+		{
+			<input type="radio" id="pageIndex_@i" name="pageIndex" value="@(i + 1)" checked="@((i + 1) == this.Page ? true : false)"  @onchange="(e)=>OnChangePage(e)" />
+			<label for="pageIndex_@i">&#128196; @(i + 1)</label>
+		}
+		<button type="button" @onclick="(e)=>OnNextClick(e)">&rarr;</button>
+	</div>
+	<div></div>
+</div>
+
+@code {
+	private int PageCount = 1;
+
+	public int Page { get; private set; } = 1;
+	public int PageSize { get; private set; } = 10;
+	public int ResultCount { get; set; } = 0;
+
+	[Parameter]
+	public EventCallback OnPageIndexChangedAsync { get; set; }
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await base.OnParametersSetAsync();
+
+		ChangePageCount();
+	}
+
+	private void ChangePageCount()
+	{
+		this.PageCount = (int)Math.Ceiling((double)ResultCount / PageSize);
+	}
+
+	private void OnPageSizeChanged(ChangeEventArgs argsChanged)
+	{
+		if (argsChanged.Value is null)
+			return;
+
+		if (int.TryParse(argsChanged.Value.ToString(), out int iValue) == true)
+			this.PageSize = iValue;
+
+		ChangePageCount();
+		ChangePage(1);
+	}
+
+	private void ChangePage(int iPage)
+	{
+		this.Page = iPage;
+
+		_ = OnPageIndexChangedAsync.InvokeAsync(CancellationToken.None);
+	}
+
+	private void OnChangePage(ChangeEventArgs argsChanged)
+	{
+		if (argsChanged.Value is null)
+			return;
+
+		if (int.TryParse(argsChanged.Value.ToString(), out int iValue) == true)
+			ChangePage(iValue);
+	}
+
+	private void OnPreviousClick(MouseEventArgs argsClick)
+	{
+		if (argsClick.Button != 0)
+			return;
+
+		if (this.Page == 1)
+			return;
+
+		ChangePage(this.Page + (-1));
+		@* this.Page--; *@
+	}
+
+	private void OnNextClick(MouseEventArgs argsClick)
+	{
+		if (argsClick.Button != 0)
+			return;
+
+		if (this.Page == this.PageCount)
+			return;
+
+		ChangePage(this.Page + 1);
+		@* this.Page++; *@
+	}
+}

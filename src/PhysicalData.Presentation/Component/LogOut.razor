@@ -1,0 +1,52 @@
+﻿@using PassportCheckpoint
+@using PassportCheckpoint.Interface
+
+@implements IDisposable
+
+@inject IPassportStateProvider prvPassportState
+@inject NavigationManager nmManager
+
+<fieldset>
+    <label for="log_out">Email address: @sEmailAddress</label>
+    <button id="log_out" type="submit" class="btn btn-warning" @onclick=ExecuteLogOut disabled=@bIsSubmitting>Log out</button>
+</fieldset>
+
+@code {
+    private CancellationTokenSource tknSource = new CancellationTokenSource();
+
+    [CascadingParameter(Name = PassportCheckpoint.CascadingParameterName.PassportState)]
+    private Task<PassportState>? tskPassportState { get; set; }
+
+    private bool bIsSubmitting = false;
+
+    private string sEmailAddress = "--";
+
+    protected override Task OnInitializedAsync()
+    {
+        prvPassportState.PassportStateChanged += OnPassportStateChanged;
+
+        return base.OnInitializedAsync();
+    }
+
+    private void OnPassportStateChanged(object? oSender, PassportStateEventArgs argsPassportState)
+    {
+        _ = InvokeAsync(() =>
+        {
+            tskPassportState = argsPassportState.PassportState;
+            StateHasChanged();
+        });
+    }
+
+    private async Task ExecuteLogOut()
+    {
+        bool bIsLoggedOut = await prvPassportState.LogOutAsync(tknSource.Token);
+    }
+
+    void IDisposable.Dispose()
+    {
+        prvPassportState.PassportStateChanged -= OnPassportStateChanged;
+
+        tknSource.Cancel();
+        tknSource.Dispose();
+    }
+}

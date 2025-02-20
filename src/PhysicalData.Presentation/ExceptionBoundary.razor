@@ -1,0 +1,51 @@
+﻿@using MessageQueueComponent
+@using MessageQueueComponent.Interface
+@using Microsoft.AspNetCore.Components.Rendering
+@using Microsoft.Extensions.Logging
+
+@inherits ErrorBoundaryBase
+
+@inject ILogger<ExceptionBoundary> logException
+@inject IMessageQueueProvider prvQueue
+
+@if(iCurrentErrorCount < this.MaximumErrorCount)
+{
+    @ChildContent
+}
+else
+{
+    <PageTitle>Too many exceptions...</PageTitle>
+    <LayoutView Layout="@ErrorLayout">
+        <p role="alert">Too many exceptions cause this site to crash.</p>
+        <button @onclick="() => Reset()">Reset page</button>
+    </LayoutView>
+}
+
+@code {
+    private int iCurrentErrorCount = 0;
+
+    [Parameter]
+    public required Type ErrorLayout { get; init; }
+
+    [Parameter]
+    public required RenderFragment Exception { get; set; }
+
+    protected override Task OnErrorAsync(Exception exException)
+    {
+        iCurrentErrorCount++;
+
+        logException.LogError("A error was logged from {Source}. Message: {Message}", exException.Source, exException.Message);
+
+        prvQueue.AddErrorMessageToQueue("Exception", exException.Message);
+
+        return Task.CompletedTask;
+    }
+
+    protected void Reset()
+    {
+        iCurrentErrorCount = 0;
+        Recover();
+    }
+
+    // see https://blazorschool.com/tutorial/blazor-server/dotnet7/error-handling-101402
+}

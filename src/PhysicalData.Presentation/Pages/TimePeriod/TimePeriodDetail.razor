@@ -1,0 +1,62 @@
+﻿@using LocalizationComponent
+@using Microsoft.Extensions.Localization
+@using Presentation.Model
+@using System.Text.Json
+
+@if (dictLocalizer is null)
+{
+    <p>Loading localization...</p>
+}
+else
+{
+    <form id="@Id">
+        <label for="tbId">@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_ID"]</label>
+        <input type="text" id="tbId" readonly @bind-value="TimePeriod.Id" @bind-value:event="oninput" />
+        <label for="tbMagnitude">@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_MAGNITUDE"]</label>
+        <input type="text" id="tbMagnitude" @bind:get="SerializeMagnitude(TimePeriod.Magnitude)" @bind:set="OnChangeMagnitude" @bind:event="oninput" />
+        <label for="tbOffset">@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_OFFSET"]</label>
+        <input type="number" id="tbOffset" @bind-value="TimePeriod.Offset" @bind-value:event="oninput" />
+        <label for="tbPhysicalDimensionId">@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_PHYSICAL_DIMENSION_ID"]</label>
+        <input type="text" id="tbPhysicalDimensionId" @bind-value="TimePeriod.PhysicalDimensionId" @bind-value:event="oninput" />
+    </form>
+}
+
+@code {
+    [CascadingParameter(Name = LocalizationComponent.CascadingParameterName.LocalizationState)]
+    private Task<LocalizationState>? tskLocalizationState { get; set; }
+
+    private IStringLocalizer? dictLocalizer;
+
+    [Parameter]
+    public required string Id { get; init; }
+
+    [Parameter]
+    public required TimePeriod TimePeriod { get; init; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (tskLocalizationState is null)
+            return;
+
+        LocalizationState lclState = await tskLocalizationState;
+        dictLocalizer = lclState.DictionaryLocalizer;
+    }
+
+    private string SerializeMagnitude(double[] dMagnitude)
+    {
+        return JsonSerializer.Serialize(dMagnitude);
+    }
+
+    private void OnChangeMagnitude(string? sValue)
+    {
+        if (sValue is null)
+            return;
+
+        double[]? dParsedMagnitude = JsonSerializer.Deserialize<double[]>(sValue);
+
+        if (dParsedMagnitude is not null)
+            TimePeriod.Magnitude = dParsedMagnitude;
+    }
+}

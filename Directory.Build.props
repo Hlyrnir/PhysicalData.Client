@@ -1,0 +1,11 @@
+<Project>
+	<PropertyGroup>
+		<PackageId>$(AssemblyName)</PackageId>
+		<PackageVersion>0.1.0</PackageVersion>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageTags>Passport</PackageTags>
+		<Description>Shows an example of a Blazor WebAssembly using Passport.</Description>
+		<RepositoryUrl>https://github.com/Hlyrnir/PhysicalData.Client</RepositoryUrl> 
+		<Authors>Hlyrnir</Authors>
+	</PropertyGroup>
+</Project>

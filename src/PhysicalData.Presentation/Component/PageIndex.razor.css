@@ -1,0 +1,28 @@
+﻿@charset "UTF-8";
+
+.flex-container
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+input[type="radio"]
+{
+    display: none;
+    font-size: 2ch;
+    margin-right: 0.2ch;
+}
+
+input[type="radio"] + label
+{
+    cursor: pointer;
+    padding: 0.2ch;
+}
+
+input[type="radio"]:checked + label
+{
+    border: 0.1ch solid;
+    flex-shrink: 0;
+    border-radius: 0.5ch;
+}

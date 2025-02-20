@@ -1,0 +1,63 @@
+﻿@using LocalizationComponent
+@using Microsoft.Extensions.Localization
+@using Presentation.Model
+
+@if (dictLocalizer is null)
+{
+    <p>Loading localization...</p>
+}
+else
+{
+    <form id="@Id">
+        <label for="tbId">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_ID"]</label>
+        <input type="text" id="tbId" readonly @bind-value="PhysicalDimension.Id" @bind-value:event="oninput" />
+        <label for="tbCultureName">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_CULTURE_NAME"]</label>
+        <input type="text" id="tbCultureName" @bind-value="PhysicalDimension.CultureName" @bind-value:event="oninput" />
+        <label for="tbName">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_NAME"]</label>
+        <input type="text" id="tbName" @bind-value="PhysicalDimension.Name" @bind-value:event="oninput" />
+        <label for="tbSymbol">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_SYMBOL"]</label>
+        <input type="text" id="tbSymbol" @bind-value="PhysicalDimension.Symbol" @bind-value:event="oninput" />
+        <label for="tbUnit">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_UNIT"]</label>
+        <input type="text" id="tbUnit" @bind-value="PhysicalDimension.Unit" @bind-value:event="oninput" />
+        <label for="tbConversionFactorToSI">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_CONVERSION_FACTOR_TO_SI"]</label>
+        <input type="number" id="tbConversionFactorToSI" @bind-value="PhysicalDimension.ConversionFactorToSI" @bind-value:event="oninput" />
+        <label for="tbExponentOfAmpere">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_AMPERE"]</label>
+        <input type="number" id="tbExponentOfAmpere" @bind-value="PhysicalDimension.ExponentOfAmpere" @bind-value:event="oninput" />
+        <label for="tbExponentOfAmpere">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_CANDELA"]</label>
+        <input type="number" id="tbExponentOfCandela" @bind-value="PhysicalDimension.ExponentOfCandela" @bind-value:event="oninput" />
+        <label for="tbExponentOfAmpere">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KELVIN"]</label>
+        <input type="number" id="tbExponentOfKelvin" @bind-value="PhysicalDimension.ExponentOfKelvin" @bind-value:event="oninput" />
+        <label for="tbExponentOfAmpere">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KILOGRAM"]</label>
+        <input type="number" id="tbExponentOfKilogram" @bind-value="PhysicalDimension.ExponentOfKilogram" @bind-value:event="oninput" />
+        <label for="tbExponentOfAmpere">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_METRE"]</label>
+        <input type="number" id="tbExponentOfMetre" @bind-value="PhysicalDimension.ExponentOfMetre" @bind-value:event="oninput" />
+        <label for="tbExponentOfAmpere">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_MOLE"]</label>
+        <input type="number" id="tbExponentOfMole" @bind-value="PhysicalDimension.ExponentOfMole" @bind-value:event="oninput" />
+        <label for="tbExponentOfAmpere">@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_SECOND"]</label>
+        <input type="number" id="tbExponentOfSecond" @bind-value="PhysicalDimension.ExponentOfSecond" @bind-value:event="oninput" />
+    </form>
+}
+
+@code {
+    [CascadingParameter(Name = LocalizationComponent.CascadingParameterName.LocalizationState)]
+    private Task<LocalizationState>? tskLocalizationState { get; set; }
+
+    private IStringLocalizer? dictLocalizer;
+
+    [Parameter]
+    public required string Id{ get; init; }
+
+    [Parameter]
+    public required PhysicalDimension PhysicalDimension { get; init; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (tskLocalizationState is null)
+            return;
+
+        LocalizationState lclState = await tskLocalizationState;
+        dictLocalizer = lclState.DictionaryLocalizer;
+    }
+}

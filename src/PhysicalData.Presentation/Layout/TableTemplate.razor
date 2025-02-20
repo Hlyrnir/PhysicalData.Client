@@ -1,0 +1,32 @@
+﻿@typeparam TItem
+
+<table class="table">
+    <thead class="bg-light">
+        @TableHeader
+    </thead>
+    <tbody>
+        @foreach (TItem tplItem in Item)
+        {
+            <tr>
+                @TableRowTemplate(tplItem)
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        @TableFooter
+    </tfoot>
+</table>
+
+@code {
+    [Parameter]
+    public required RenderFragment TableHeader { get; set; }
+
+    [Parameter]
+    public required RenderFragment TableFooter { get; set; }
+
+    [Parameter]
+    public required RenderFragment<TItem> TableRowTemplate { get; set; }
+
+    [Parameter]
+    public required IEnumerable<TItem> Item { get; set; }
+}

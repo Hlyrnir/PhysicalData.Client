@@ -1,0 +1,135 @@
+﻿@using LocalizationComponent
+@using Microsoft.Extensions.Localization
+@using PhysicalData.Presentation.Filter
+
+@if (dictLocalizer is null)
+{
+    <p>Loading localization...</p>
+}
+else if (fltrTimePeriod is not null)
+{
+    <article>
+        <form>
+            <label for="tbId">@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_ID"]</label>
+            <input type="text" id="tbId" placeholder="@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_ID"]"
+                   @bind:get="fltrTimePeriod.Id.ToString()"
+                   @bind:set="(sValue) => fltrTimePeriod.Id = ParseGuid(sValue)"
+                   @bind:event="oninput"
+                   @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbCultureName">@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_MAGNITUDE"]</label>
+            <input type="text" id="tbCultureName" placeholder="@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_MAGNITUDE"]"
+                   @bind:get="fltrTimePeriod.Magnitude"
+                   @bind:set="(sValue) => fltrTimePeriod.Magnitude = ParseString(sValue)"
+                   @bind:event="oninput"
+                   @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbName">@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_OFFSET"]</label>
+            <input type="text" id="tbName" placeholder="@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_OFFSET"]"
+                   @bind:get="fltrTimePeriod.Offset.ToString()"
+                   @bind:set="(sValue) => fltrTimePeriod.Offset = ParseDouble(sValue)"
+                   @bind:event="oninput"
+                   @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+
+            <label for="tbSymbol">@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_PHYSICAL_DIMENSION_ID"]</label>
+            <input type="text" id="tbSymbol" placeholder="@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_PHYSICAL_DIMENSION_ID"]"
+                   @bind:get="fltrTimePeriod.PhysicalDimensionId.ToString()"
+                   @bind:set="(sValue) => fltrTimePeriod.PhysicalDimensionId = ParseGuid(sValue)"
+                   @bind:event="oninput"
+                   @onkeydown="(argsKeyboard) => OnKeyDown(argsKeyboard)" />
+            <hr />
+            <div>
+                <button type="button" @onclick="NotifyFilterChanged">@dictLocalizer["DEFAULT_PAGE_FILTER"]</button>
+                <button type="button" @onclick="Reset">@dictLocalizer["DEFAULT_PAGE_RESET"]</button>
+            </div>
+        </form>
+    </article>
+}
+
+@code {
+    [CascadingParameter(Name = LocalizationComponent.CascadingParameterName.LocalizationState)]
+    private Task<LocalizationState>? tskLocalizationState { get; set; }
+
+    private IStringLocalizer? dictLocalizer;
+
+    private TimePeriodFilter? fltrTimePeriod;
+
+    [Parameter]
+    public required int Page { get; init; }
+
+    [Parameter]
+    public required int PageSize { get; init; }
+
+    [Parameter]
+    public EventCallback<TimePeriodFilter?> OnFilterChangedAsync { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        fltrTimePeriod = new TimePeriodFilter()
+            {
+                Page = this.Page,
+                PageSize = this.PageSize
+            };
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (tskLocalizationState is null)
+            return;
+
+        LocalizationState lclState = await tskLocalizationState;
+        dictLocalizer = lclState.DictionaryLocalizer;
+    }
+
+    private Guid? ParseGuid(string? sValue)
+    {
+        if (Guid.TryParse(sValue, out Guid guValue) == true)
+            return guValue;
+
+        return null;
+    }
+
+    private double? ParseDouble(string? sValue)
+    {
+        if (double.TryParse(sValue, out double dValue) == true)
+            return dValue;
+
+        return null;
+    }
+
+    private string? ParseString(string? sValue)
+    {
+        if (string.IsNullOrWhiteSpace(sValue) == false)
+            return sValue;
+
+        return null;
+    }
+
+    private void NotifyFilterChanged()
+    {
+        _ = OnFilterChangedAsync.InvokeAsync(fltrTimePeriod);
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key != "Enter")
+            return;
+
+        NotifyFilterChanged();
+    }
+
+    private void Reset()
+    {
+        fltrTimePeriod = new TimePeriodFilter()
+            {
+                Page = this.Page,
+                PageSize = this.PageSize
+            };
+
+        NotifyFilterChanged();
+    }
+}

@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageVersion Include="LineChartComponent" Version="0.1.0" />
+    <PackageVersion Include="LocalizationComponent" Version="0.1.0" />
+    <PackageVersion Include="MessageQueueComponent" Version="0.1.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.10" PrivateAssets="all" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.2.0" />
+    <PackageVersion Include="Passport.Contract" Version="0.1.0" />
+    <PackageVersion Include="PassportCheckpoint" Version="0.1.0" />
+    <PackageVersion Include="PhysicalData.Contract" Version="0.1.0" />
+    <PackageVersion Include="WebBrowserComponent" Version="0.1.0" />
+  </ItemGroup>
+</Project>

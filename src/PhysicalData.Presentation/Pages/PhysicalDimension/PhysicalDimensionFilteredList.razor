@@ -1,0 +1,372 @@
+﻿@using LocalizationComponent
+@using MessageQueueComponent
+@using MessageQueueComponent.Interface
+@using Microsoft.Extensions.Localization
+@using PassportCheckpoint
+@using PassportCheckpoint.Interface
+@using Presentation.Filter
+@using Presentation.Interface
+@using Presentation.Model
+@using Presentation.Result
+@using WebBrowserComponent
+
+@inject IJSRuntime jsRuntime
+
+@implements IDisposable
+
+@inject IPassportStateProvider prvPassportState
+@inject IPhysicalDimensionService srvPhysicalDimension
+@inject IMessageQueueProvider prvQueue
+
+@inject NavigationManager nmManager
+
+@attribute [Route(PageRoute.PhysicalDimension.List)]
+
+@if (dictLocalizer is null)
+{
+    <p>Loading localization...</p>
+}
+else
+{
+    <PageTitle>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_TITLE"]</PageTitle>
+
+    <h3>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_TITLE"]</h3>
+    <hr />
+    <PassportRestrictedView RequiredVisa="@ppRequiredVisa" Context="read">
+        <NotAuthorized>
+            @dictLocalizer["DEFAULT_NotAuthenticated"]
+        </NotAuthorized>
+        <Authorized Context="list">
+            <PhysicalDimensionFilterTemplate Page="idxPage.Page" PageSize="idxPage.PageSize" OnFilterChangedAsync="RefreshListWithFilter" />
+            <hr />
+            <PageIndex @ref="idxPage" OnPageIndexChangedAsync="OnPageIndexChangedAsync" />
+            <hr />
+            <TableTemplate Item="enumPhysicalDimension">
+                <TableHeader>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_ID"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_CULTURE_NAME"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_NAME"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_SYMBOL"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_UNIT"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_CONVERSION_FACTOR_TO_SI"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_AMPERE"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_CANDELA"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KELVIN"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_KILOGRAM"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_METRE"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_MOLE"]</th>
+                    <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_SECOND"]</th>
+
+                    <PassportRestrictedView RequiredVisa="@ppRequiredVisaToModify" Context="modify">
+                        <Authorized>
+                            <th>@dictLocalizer["DEFAULT_PAGE_ACTION"]</th>
+                        </Authorized>
+                    </PassportRestrictedView>
+                </TableHeader>
+                <TableRowTemplate Context="pdPhysicalDimension">
+                    <td>@pdPhysicalDimension.Id</td>
+                    <td>@pdPhysicalDimension.CultureName</td>
+                    <td>@pdPhysicalDimension.Name</td>
+                    <td>@pdPhysicalDimension.Symbol</td>
+                    <td>@pdPhysicalDimension.Unit</td>
+                    <td>@pdPhysicalDimension.ConversionFactorToSI</td>
+                    <td>@pdPhysicalDimension.ExponentOfAmpere</td>
+                    <td>@pdPhysicalDimension.ExponentOfCandela</td>
+                    <td>@pdPhysicalDimension.ExponentOfKelvin</td>
+                    <td>@pdPhysicalDimension.ExponentOfKilogram</td>
+                    <td>@pdPhysicalDimension.ExponentOfMetre</td>
+                    <td>@pdPhysicalDimension.ExponentOfMole</td>
+                    <td>@pdPhysicalDimension.ExponentOfSecond</td>
+                    <td>
+                        <PassportRestrictedView RequiredVisa="@ppRequiredVisaToModify" Context="modify">
+                            <Authorized>
+                                <button @onclick="argsClick=>ShowEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_PAGE_EDIT"]</button>
+
+                                <DialogTemplate @ref="tmplEditDialog">
+                                    <hr />
+                                    <PhysicalDimensionDetail Id="@pdPhysicalDimension.Id.ToString()" PhysicalDimension="@pdPhysicalDimension" />
+                                    <hr />
+                                    <button type="button" @onclick="argsClick=>UpdatePhysicalDimension(pdPhysicalDimension, argsClick)">@dictLocalizer["DEFAULT_DIALOG_OK"]</button>
+                                    <button type="button" @onclick="argsClick=>CloseEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_DIALOG_CANCEL"]</button>
+                                </DialogTemplate>
+                            </Authorized>
+                        </PassportRestrictedView>
+                        <PassportRestrictedView RequiredVisa="@ppRequiredVisaToRemove" Context="remove">
+                            <Authorized>
+                                <button name="btnDelete" type="button" @onclick="argsClick=>DeletePhysicalDimension(pdPhysicalDimension.Id, argsClick)">@dictLocalizer["DEFAULT_PAGE_DELETE"]</button>
+                            </Authorized>
+                        </PassportRestrictedView>
+                    </td>
+                </TableRowTemplate>
+                <TableFooter>
+                </TableFooter>
+            </TableTemplate>
+
+            <PassportRestrictedView RequiredVisa="@ppRequiredVisaToAdd" Context="add">
+                <Authorized Context="add">
+                    <button @onclick="argsClick=>ShowAddDialogAsync(argsClick)">@dictLocalizer["DEFAULT_PAGE_ADD"]</button>
+
+                    <DialogTemplate @ref="tmplAddDialog">
+                        <hr />
+                        <PhysicalDimensionDetail Id="@pdPhysicalDimensionToCreate.Id.ToString()" PhysicalDimension="@pdPhysicalDimensionToCreate" />
+                        <hr />
+                        <button type="button" @onclick="argsClick=>CreatePhysicalDimension(pdPhysicalDimensionToCreate, argsClick)">@dictLocalizer["DEFAULT_DIALOG_OK"]</button>
+                        <button type="button" @onclick="argsClick=>CloseAddDialogAsync(argsClick)">@dictLocalizer["DEFAULT_DIALOG_CANCEL"]</button>
+                    </DialogTemplate>
+                </Authorized>
+            </PassportRestrictedView>
+        </Authorized>
+    </PassportRestrictedView>
+}
+
+@code {
+    private CancellationTokenSource tknSource = new CancellationTokenSource();
+
+    [CascadingParameter(Name = LocalizationComponent.CascadingParameterName.LocalizationState)]
+    private Task<LocalizationState>? tskLocalizationState { get; set; }
+
+    private IStringLocalizer? dictLocalizer;
+
+    [CascadingParameter(Name = PassportCheckpoint.CascadingParameterName.PassportState)]
+    private Task<PassportState>? tskPassportState { get; set; }
+
+    private readonly IEnumerable<IPassportVisa> ppRequiredVisa = Enumerable.Empty<IPassportVisa>();
+    private readonly IEnumerable<IPassportVisa> ppRequiredVisaToAdd = new List<IPassportVisa> { new PassportVisa() { Name = "PHYSICAL_DIMENSION", Level = 1 } };
+    private readonly IEnumerable<IPassportVisa> ppRequiredVisaToModify = new List<IPassportVisa> { new PassportVisa() { Name = "PHYSICAL_DIMENSION", Level = 2 } };
+    private readonly IEnumerable<IPassportVisa> ppRequiredVisaToRemove = new List<IPassportVisa> { new PassportVisa() { Name = "PHYSICAL_DIMENSION", Level = 3 } };
+
+    private PageIndex idxPage = new PageIndex();
+
+    private async Task OnPageIndexChangedAsync()
+    {
+        await RefreshList();
+    }
+
+    IEnumerable<PhysicalDimension> enumPhysicalDimension = Enumerable.Empty<PhysicalDimension>();
+
+    private PhysicalDimension pdPhysicalDimensionToCreate = new PhysicalDimension();
+
+    private bool bIsBusy = false;
+
+    public required DialogTemplate tmplAddDialog;
+    public required DialogTemplate tmplEditDialog;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (tskLocalizationState is null)
+            return;
+
+        LocalizationState lclState = await tskLocalizationState;
+        dictLocalizer = lclState.DictionaryLocalizer;
+
+        if (tskPassportState is null)
+            return;
+
+        PassportState ppState = await tskPassportState;
+
+        if (ppState.IsAuthenticated)
+            await RefreshList();
+    }
+
+    private async Task ShowEditDialogAsync(MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await tmplEditDialog.OpenAsync(tknSource.Token);
+    }
+
+    private async Task CloseEditDialogAsync(MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await tmplEditDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task ShowAddDialogAsync(MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        pdPhysicalDimensionToCreate = new PhysicalDimension();
+
+        await tmplAddDialog.OpenAsync(tknSource.Token);
+    }
+
+    private async Task CloseAddDialogAsync(MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await tmplAddDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task CreatePhysicalDimension(PhysicalDimension pdPhysicalDimension, MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await TryCreate(pdPhysicalDimension, tknSource.Token);
+
+        await tmplAddDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task DeletePhysicalDimension(Guid guPhysicalDimensionId, MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await TryDelete(guPhysicalDimensionId, tknSource.Token);
+
+        await tmplEditDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task UpdatePhysicalDimension(PhysicalDimension pdPhysicalDimension, MouseEventArgs argsClick)
+    {
+        if (argsClick.Button != 0)
+            return;
+
+        await TryUpdate(pdPhysicalDimension, tknSource.Token);
+
+        await tmplEditDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task RefreshList()
+    {
+        PhysicalDimensionFilter fltrPhysicalDimension = new PhysicalDimensionFilter()
+        {
+            Page = idxPage.Page,
+            PageSize = idxPage.PageSize
+        };
+
+        await RefreshListWithFilter(fltrPhysicalDimension);
+    }
+
+    private async Task RefreshListWithFilter(PhysicalDimensionFilter? fltrPhysicalDimension)
+    {
+        if (fltrPhysicalDimension is null)
+            return;
+
+        if (bIsBusy)
+            return;
+
+        bIsBusy = true;
+
+        ApiResult<PagedResult<PhysicalDimension>> rsltPhysicalDimension = await srvPhysicalDimension.FindPhysicalDimensionByFilter(fltrPhysicalDimension, tknSource.Token);
+
+        bool bResult = rsltPhysicalDimension.Match(
+            apiError =>
+            {
+                prvQueue.AddWarningMessageToQueue("List could not be refreshed.", apiError.Description);
+
+                return false;
+            },
+            rsltPagedResult =>
+            {
+                this.enumPhysicalDimension = rsltPagedResult.Content;
+                idxPage.ResultCount = rsltPagedResult.ResultCount;
+
+                return true;
+            }
+        );
+
+        bIsBusy = false;
+    }
+
+    private async Task TryCreate(PhysicalDimension pdPhysicalDimension, CancellationToken tknCancellation)
+    {
+        if (bIsBusy)
+            return;
+
+        bIsBusy = true;
+
+        ApiResult<bool> rsltUpdate = await srvPhysicalDimension.TryCreatePhysicalDimension(pdPhysicalDimension, tknCancellation);
+
+        bool bResult = rsltUpdate.Match(
+            apiError =>
+            {
+                prvQueue.AddWarningMessageToQueue("Physical dimension has not been created.", apiError.Description);
+                return false;
+            },
+            bResult =>
+            {
+                return bResult;
+            }
+        );
+
+        bIsBusy = false;
+
+        if (bResult == false)
+            return;
+
+        await RefreshList();
+        await jsRuntime.ShowAlertAsync("Physical dimension has been created.", tknCancellation);
+    }
+
+    private async Task TryUpdate(PhysicalDimension pdPhysicalDimension, CancellationToken tknCancellation)
+    {
+        if (bIsBusy)
+            return;
+
+        bIsBusy = true;
+
+        ApiResult<bool> rsltUpdate = await srvPhysicalDimension.TryUpdatePhysicalDimension(pdPhysicalDimension, tknCancellation);
+
+        bool bResult = rsltUpdate.Match(
+            apiError =>
+            {
+                prvQueue.AddWarningMessageToQueue("Physical dimension has not been updated.", apiError.Description);
+                return false;
+            },
+            bResult =>
+            {
+                return bResult;
+            }
+        );
+
+        bIsBusy = false;
+
+        if (bResult == false)
+            return;
+
+        await RefreshList();
+        await jsRuntime.ShowAlertAsync("Physical dimension has been updated.", tknCancellation);
+    }
+
+    private async Task TryDelete(Guid guPhysicalDimensionId, CancellationToken tknCancellation)
+    {
+        bool bIsConfirmed = await jsRuntime.ShowConfirmAsync($"Are you sure you want to delete '{guPhysicalDimensionId}'?");
+
+        if (bIsConfirmed == false)
+            return;
+
+        ApiResult<bool> rsltPhysicalDimension = await srvPhysicalDimension.TryDeletePhysicalDimension(guPhysicalDimensionId, tknCancellation);
+
+        bool bResult = rsltPhysicalDimension.Match(
+            apiError =>
+            {
+                prvQueue.AddWarningMessageToQueue("Physical dimension has not been deleted.", apiError.Description);
+                return false;
+            },
+            bResult =>
+            {
+                return bResult;
+            }
+        );
+
+        if (bResult == false)
+            return;
+
+        await RefreshList();
+        await jsRuntime.ShowAlertAsync("Physical dimension has been deleted.", tknCancellation);
+    }
+
+    public void Dispose()
+    {
+        tknSource.Cancel();
+        tknSource.Dispose();
+    }
+}
