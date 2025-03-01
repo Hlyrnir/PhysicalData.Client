@@ -1,5 +1,6 @@
 ﻿using Passport.Contract.v01.Response.PassportVisa;
 using PassportCheckpoint.Interface;
+using System.Collections.Generic;
 
 namespace PhysicalData.Presentation.Extension
 {

@@ -1,4 +1,6 @@
-﻿namespace PhysicalData.Presentation
+﻿using System;
+
+namespace PhysicalData.Presentation
 {
     internal static class PageRoute
     {

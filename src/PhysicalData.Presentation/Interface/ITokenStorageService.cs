@@ -1,4 +1,7 @@
-﻿namespace PhysicalData.Presentation.Interface
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace PhysicalData.Presentation.Interface
 {
     public interface ITokenStorageService
     {

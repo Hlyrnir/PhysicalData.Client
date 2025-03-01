@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.JsonWebTokens;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Passport.Contract.v01.Request.Authentication;
 using Passport.Contract.v01.Response.Authentication;
 using Passport.Contract.v01.Response.Passport;
@@ -8,10 +10,15 @@ using PhysicalData.Presentation.Extension;
 using PhysicalData.Presentation.Interface;
 using PhysicalData.Presentation.Result;
 using Presentation.Result;
+using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PhysicalData.Presentation.Authentication
 {

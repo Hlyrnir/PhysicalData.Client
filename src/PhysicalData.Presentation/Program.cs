@@ -3,6 +3,7 @@ using LocalizationComponent.Interface;
 using MessageQueueComponent;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using PassportCheckpoint.Interface;
 using PhysicalData.Presentation;
 using PhysicalData.Presentation.Authentication;
@@ -11,6 +12,8 @@ using PhysicalData.Presentation.Localization;
 using PhysicalData.Presentation.Model;
 using PhysicalData.Presentation.Service;
 using PhysicalData.Presentation.Storage;
+using System;
+using System.Net.Http;
 
 var webBuilder = WebAssemblyHostBuilder.CreateDefault(args);
 webBuilder.RootComponents.Add<App>("#app");
@@ -27,8 +30,8 @@ webBuilder.Services.AddTransient<AuthenticationHeaderHandler>();
 
 //webBuilder.Services.AddLogging(logBuilder =>
 //{
-//    //builder.ClearProviders();
-//    //builder.AddProvider();
+//    logBuilder.ClearProviders();
+//    logBuilder.AddProvider();
 //    logBuilder.SetMinimumLevel(LogLevel.Warning);
 //});
 

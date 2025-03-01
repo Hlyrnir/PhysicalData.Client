@@ -1,4 +1,6 @@
 ﻿using PassportCheckpoint.Interface;
+using System;
+using System.Collections.Generic;
 
 namespace PhysicalData.Presentation.Model
 {

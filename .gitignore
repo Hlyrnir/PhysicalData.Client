@@ -6,6 +6,9 @@
 #Project-specific files
 tmp/
 *.db
+src/PhysicalData.Presentation/wwwroot/appsettings.json
+src/PhysicalData.Presentation/wwwroot/appsettings.Development.json
+src/PhysicalData.Presentation/Properties/launchSettings.json
 
 # User-specific files
 *.rsuser

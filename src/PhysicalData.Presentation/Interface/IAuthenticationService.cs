@@ -1,5 +1,7 @@
 ﻿using PassportCheckpoint.Interface;
 using PhysicalData.Presentation.Result;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PhysicalData.Presentation.Interface
 {

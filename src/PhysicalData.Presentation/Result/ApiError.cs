@@ -1,4 +1,6 @@
-﻿namespace PhysicalData.Presentation.Result
+﻿using System;
+
+namespace PhysicalData.Presentation.Result
 {
     public readonly struct ApiError
     {

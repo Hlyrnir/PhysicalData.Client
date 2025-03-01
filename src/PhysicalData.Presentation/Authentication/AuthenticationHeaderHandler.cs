@@ -1,7 +1,12 @@
-﻿using PassportCheckpoint.Interface;
+﻿using Microsoft.Extensions.Logging;
+using PassportCheckpoint.Interface;
 using PhysicalData.Presentation.Interface;
 using PhysicalData.Presentation.Result;
+using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PhysicalData.Presentation.Authentication
 {

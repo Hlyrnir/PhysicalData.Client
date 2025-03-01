@@ -1,4 +1,6 @@
-﻿<div class="flex-container">
+﻿@using System.Threading
+
+<div class="flex-container">
 	<div>
 		<label for="pageSize" style="font-size: 3ch">&#8801;</label>
 		<select id="pageSize" @onchange="(e)=>OnPageSizeChanged(e)">

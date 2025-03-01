@@ -1,7 +1,12 @@
 ﻿using LocalizationComponent;
 using LocalizationComponent.Interface;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PhysicalData.Presentation.Localization
 {

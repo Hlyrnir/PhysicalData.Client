@@ -1,4 +1,6 @@
-﻿namespace PhysicalData.Presentation.Filter
+﻿using System.Collections.Generic;
+
+namespace PhysicalData.Presentation.Filter
 {
     public sealed class PagedResult<T> where T : class
     {

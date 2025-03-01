@@ -1,4 +1,6 @@
-﻿namespace PhysicalData.Presentation.Chart
+﻿using System.Collections.Generic;
+
+namespace PhysicalData.Presentation.Chart
 {
     public static class ExampleChartConfiguration
     {

@@ -1,4 +1,7 @@
-﻿namespace PhysicalData.Presentation.Result
+﻿using System;
+using System.Threading.Tasks;
+
+namespace PhysicalData.Presentation.Result
 {
     public enum MessageResultState : byte
     {
