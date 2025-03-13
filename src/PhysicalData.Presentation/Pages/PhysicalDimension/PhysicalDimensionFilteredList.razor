@@ -38,6 +38,13 @@ else
             @dictLocalizer["DEFAULT_NotAuthenticated"]
         </NotAuthorized>
         <Authorized Context="list">
+            <DialogTemplate @ref="tmplEditDialog">
+                <hr />
+                <PhysicalDimensionDetail Id="@pdPhysicalDimensionToEdit.Id.ToString()" PhysicalDimension="@pdPhysicalDimensionToEdit" />
+                <hr />
+                <button type="button" @onclick="argsClick=>UpdatePhysicalDimension(pdPhysicalDimensionToEdit, argsClick)">@dictLocalizer["DEFAULT_DIALOG_OK"]</button>
+                <button type="button" @onclick="argsClick=>CloseEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_DIALOG_CANCEL"]</button>
+            </DialogTemplate>
             <PhysicalDimensionFilterTemplate Page="idxPage.Page" PageSize="idxPage.PageSize" OnFilterChangedAsync="RefreshListWithFilter" />
             <hr />
             <PageIndex @ref="idxPage" OnPageIndexChangedAsync="OnPageIndexChangedAsync" />
@@ -57,7 +64,6 @@ else
                     <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_METRE"]</th>
                     <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_MOLE"]</th>
                     <th>@dictLocalizer["PHYSICAL_DIMENSION_PAGE_DETAIL_EXPONENT_SECOND"]</th>
-
                     <PassportRestrictedView RequiredVisa="@ppRequiredVisaToModify" Context="modify">
                         <Authorized>
                             <th>@dictLocalizer["DEFAULT_PAGE_ACTION"]</th>
@@ -81,15 +87,7 @@ else
                     <td>
                         <PassportRestrictedView RequiredVisa="@ppRequiredVisaToModify" Context="modify">
                             <Authorized>
-                                <button @onclick="argsClick=>ShowEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_PAGE_EDIT"]</button>
-
-                                <DialogTemplate @ref="tmplEditDialog">
-                                    <hr />
-                                    <PhysicalDimensionDetail Id="@pdPhysicalDimension.Id.ToString()" PhysicalDimension="@pdPhysicalDimension" />
-                                    <hr />
-                                    <button type="button" @onclick="argsClick=>UpdatePhysicalDimension(pdPhysicalDimension, argsClick)">@dictLocalizer["DEFAULT_DIALOG_OK"]</button>
-                                    <button type="button" @onclick="argsClick=>CloseEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_DIALOG_CANCEL"]</button>
-                                </DialogTemplate>
+                                <button @onclick="argsClick=>ShowEditDialogAsync(pdPhysicalDimension, argsClick)">@dictLocalizer["DEFAULT_PAGE_EDIT"]</button>
                             </Authorized>
                         </PassportRestrictedView>
                         <PassportRestrictedView RequiredVisa="@ppRequiredVisaToRemove" Context="remove">
@@ -146,6 +144,7 @@ else
     IEnumerable<PhysicalDimension> enumPhysicalDimension = Enumerable.Empty<PhysicalDimension>();
 
     private PhysicalDimension pdPhysicalDimensionToCreate = new PhysicalDimension();
+    private PhysicalDimension pdPhysicalDimensionToEdit = new PhysicalDimension();
 
     private bool bIsBusy = false;
 
@@ -171,24 +170,11 @@ else
             await RefreshList();
     }
 
-    private async Task ShowEditDialogAsync(MouseEventArgs argsClick)
-    {
-        if (argsClick.Button != 0)
-            return;
-
-        await tmplEditDialog.OpenAsync(tknSource.Token);
-    }
-
-    private async Task CloseEditDialogAsync(MouseEventArgs argsClick)
-    {
-        if (argsClick.Button != 0)
-            return;
-
-        await tmplEditDialog.CloseAsync(tknSource.Token);
-    }
-
     private async Task ShowAddDialogAsync(MouseEventArgs argsClick)
     {
+        if (tmplAddDialog is null)
+            return;
+
         if (argsClick.Button != 0)
             return;
 
@@ -199,10 +185,37 @@ else
 
     private async Task CloseAddDialogAsync(MouseEventArgs argsClick)
     {
+        if (tmplAddDialog is null)
+            return;
+
         if (argsClick.Button != 0)
             return;
 
         await tmplAddDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task ShowEditDialogAsync(PhysicalDimension pdPhysicalDimension, MouseEventArgs argsClick)
+    {
+        if (tmplEditDialog is null)
+            return;
+
+        if (argsClick.Button != 0)
+            return;
+
+        pdPhysicalDimensionToEdit = pdPhysicalDimension;
+
+        await tmplEditDialog.OpenAsync(tknSource.Token);
+    }
+
+    private async Task CloseEditDialogAsync(MouseEventArgs argsClick)
+    {
+        if (tmplEditDialog is null)
+            return;
+
+        if (argsClick.Button != 0)
+            return;
+
+        await tmplEditDialog.CloseAsync(tknSource.Token);
     }
 
     private async Task CreatePhysicalDimension(PhysicalDimension pdPhysicalDimension, MouseEventArgs argsClick)

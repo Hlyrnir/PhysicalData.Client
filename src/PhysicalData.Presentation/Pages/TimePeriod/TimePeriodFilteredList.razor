@@ -40,6 +40,13 @@ else
             @dictLocalizer["DEFAULT_NotAuthenticated"]
         </NotAuthorized>
         <Authorized Context="list">
+            <DialogTemplate @ref="tmplEditDialog">
+                <hr />
+                <TimePeriodDetail Id="@pdTimePeriodToEdit.Id.ToString()" TimePeriod="@pdTimePeriodToEdit" />
+                <hr />
+                <button type="button" @onclick="argsClick=>UpdateTimePeriod(pdTimePeriodToEdit, argsClick)">@dictLocalizer["DEFAULT_DIALOG_OK"]</button>
+                <button type="button" @onclick="argsClick=>CloseEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_DIALOG_CANCEL"]</button>
+            </DialogTemplate>
             <TimePeriodFilterTemplate Page="idxPage.Page" PageSize="idxPage.PageSize" OnFilterChangedAsync="RefreshListWithFilter" />
             <hr />
             <PageIndex @ref="idxPage" OnPageIndexChangedAsync="OnPageIndexChangedAsync" />
@@ -50,7 +57,6 @@ else
                     <th>@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_MAGNITUDE"]</th>
                     <th>@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_OFFSET"]</th>
                     <th>@dictLocalizer["TIME_PERIOD_PAGE_DETAIL_PHYSICAL_DIMENSION_ID"]</th>
-
                     <PassportRestrictedView RequiredVisa="@ppRequiredVisaToModify" Context="modify">
                         <Authorized>
                             <th>@dictLocalizer["DEFAULT_PAGE_ACTION"]</th>
@@ -65,15 +71,7 @@ else
                     <td>
                         <PassportRestrictedView RequiredVisa="@ppRequiredVisaToModify" Context="modify">
                             <Authorized>
-                                <button @onclick="argsClick=>ShowEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_PAGE_EDIT"]</button>
-
-                                <DialogTemplate @ref="tmplEditDialog">
-                                    <hr />
-                                    <TimePeriodDetail Id="@pdTimePeriod.Id.ToString()" TimePeriod="@pdTimePeriod" />
-                                    <hr />
-                                    <button type="button" @onclick="argsClick=>UpdateTimePeriod(pdTimePeriod, argsClick)">@dictLocalizer["DEFAULT_DIALOG_OK"]</button>
-                                    <button type="button" @onclick="argsClick=>CloseEditDialogAsync(argsClick)">@dictLocalizer["DEFAULT_DIALOG_CANCEL"]</button>
-                                </DialogTemplate>
+                                <button @onclick="argsClick=>ShowEditDialogAsync(pdTimePeriod, argsClick)">@dictLocalizer["DEFAULT_PAGE_EDIT"]</button>
                             </Authorized>
                         </PassportRestrictedView>
                         <PassportRestrictedView RequiredVisa="@ppRequiredVisaToRemove" Context="remove">
@@ -130,6 +128,7 @@ else
     IEnumerable<TimePeriod> enumTimePeriod = Enumerable.Empty<TimePeriod>();
 
     private TimePeriod pdTimePeriodToCreate = new TimePeriod();
+    private TimePeriod pdTimePeriodToEdit = new TimePeriod();
 
     private bool bIsBusy = false;
 
@@ -155,24 +154,11 @@ else
             await RefreshList();
     }
 
-    private async Task ShowEditDialogAsync(MouseEventArgs argsClick)
-    {
-        if (argsClick.Button != 0)
-            return;
-
-        await tmplEditDialog.OpenAsync(tknSource.Token);
-    }
-
-    private async Task CloseEditDialogAsync(MouseEventArgs argsClick)
-    {
-        if (argsClick.Button != 0)
-            return;
-
-        await tmplEditDialog.CloseAsync(tknSource.Token);
-    }
-
     private async Task ShowAddDialogAsync(MouseEventArgs argsClick)
     {
+        if (tmplAddDialog is null)
+            return;
+
         if (argsClick.Button != 0)
             return;
 
@@ -183,10 +169,35 @@ else
 
     private async Task CloseAddDialogAsync(MouseEventArgs argsClick)
     {
+        if (tmplAddDialog is null)
+            return;
+
         if (argsClick.Button != 0)
             return;
 
         await tmplAddDialog.CloseAsync(tknSource.Token);
+    }
+
+    private async Task ShowEditDialogAsync(TimePeriod pdTimePeriod, MouseEventArgs argsClick)
+    {
+        if (tmplEditDialog is null)
+            return;
+
+        if (argsClick.Button != 0)
+            return;
+
+        await tmplEditDialog.OpenAsync(tknSource.Token);
+    }
+
+    private async Task CloseEditDialogAsync(MouseEventArgs argsClick)
+    {
+        if (tmplEditDialog is null)
+            return;
+
+        if (argsClick.Button != 0)
+            return;
+
+        await tmplEditDialog.CloseAsync(tknSource.Token);
     }
 
     private async Task CreateTimePeriod(TimePeriod pdTimePeriod, MouseEventArgs argsClick)
